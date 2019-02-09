@@ -1,0 +1,38 @@
+#!/bin/bash
+
+HTML_PATH='./site.html'
+URL='https://www.archlinux.org/'
+
+if [ ! -f $HTML_PATH ]
+then
+    printf 'Local copy of site not found.\n'
+    printf 'Downloading from %s and saving to %s\n\n' $URL $HTML_PATH
+
+    wget -O $HTML_PATH $URL
+
+    exit 1
+fi
+
+printf 'Downloading %s\n' $URL
+
+wget --quiet -O /tmp/temp.html $URL
+
+comp=$(python compare_html.py "$(cat $HTML_PATH)" "$(cat /tmp/temp.html)")
+
+if [ $? -eq 1 ]
+then
+    printf 'An error occurred, quiting.\n'
+    exit 1
+fi
+
+
+case $comp in
+    0) printf 'No changes found, safe to update.\n'
+       printf 'Running pacman...\n\n'
+       sudo pacman -Syu;;
+
+    
+    -1) printf 'Changes found, check website before next update.\n'
+	printf 'Writing page from %s to %s.\n' $URL $HTML_PATH
+	cp /tmp/temp.html $HTML_PATH;;
+esac

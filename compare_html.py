@@ -5,7 +5,13 @@ from bs4 import BeautifulSoup
 def get_news(html_doc):
 
     div = html_doc.find('div', id="news")
+
+    if div is None:
+        print("Could not find div tag with appropriate id.", file=sys.stderr)
+        sys.exit(1)
+
     news_items = div.findChildren('h4', recursive=False)
+
     return news_items
 
 

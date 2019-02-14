@@ -3,6 +3,23 @@
 HTML_PATH='./site.html'
 URL='https://www.archlinux.org/'
 
+no_update=false
+check_only=false
+dry_run=false
+
+while test $# != 0
+do
+    case $1 in
+	-n | --no-update) no_update=true;;
+	-c | --check-only) check_only=true;;
+	-d | --dry-run) no_update=true
+			check_only=true;;
+	*) printf "Invalid flag %s\n" $1
+	   exit 1;;
+    esac
+    shift
+done
+
 if [ ! -f $HTML_PATH ]
 then
     printf 'Local copy of site not found.\n'
@@ -28,11 +45,23 @@ fi
 
 case $comp in
     0) printf 'No changes found, safe to update.\n'
+
+       if [ $no_update = true ]
+       then
+	   printf 'Exiting without updating.\n'
+	   exit 0
+       fi
+              
        printf 'Running pacman...\n\n'
        sudo pacman -Syu;;
 
     
     -1) printf 'Changes found, check website before next update.\n'
-	printf 'Writing page from %s to %s.\n' $URL $HTML_PATH
-	cp /tmp/temp.html $HTML_PATH;;
+
+	if [ $check_only = false ]
+	then
+	    printf 'Writing page from %s to %s.\n' $URL $HTML_PATH
+	    cp /tmp/temp.html $HTML_PATH
+	fi;;
+	
 esac

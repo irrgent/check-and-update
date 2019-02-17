@@ -14,7 +14,7 @@ usage_msg() {
 EOF
 	)
 
-    echo -e $text | column -t -s '/' > help.txt
+    echo -e $text | column -t -s '/'
 }
 
 HTML_PATH='./site.html'

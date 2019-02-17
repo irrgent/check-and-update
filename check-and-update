@@ -1,24 +1,54 @@
 #!/bin/bash
 
+usage_msg() {
+
+    printf 'USAGE:\n\n'
+
+    text=$(cat <<EOF
+\t-n, --no-update/Do not run an update after checking website.\n
+\t-c, --check-only/Check the website but do not save new copy.\n
+\t-d, --dry-run/Same as -n and -c.\n
+\t-p, --path [PATH]/Specify path to the local html file.\n
+\t-u, --url [URL]/Specify the URL to check.\n
+\t-h, --help/Display this message.\n
+EOF
+	)
+
+    echo -e $text | column -t -s '/' > help.txt
+}
+
 HTML_PATH='./site.html'
 URL='https://www.archlinux.org/'
 
 no_update=false
 check_only=false
-dry_run=false
 
 while test $# != 0
 do
     case $1 in
 	-n | --no-update) no_update=true;;
+
 	-c | --check-only) check_only=true;;
+
 	-d | --dry-run) no_update=true
 			check_only=true;;
-	*) printf "Invalid flag %s\n" $1
+
+	-p | --path) shift
+		     HTML_PATH=$1;;
+
+	-u | --url) shift
+		    URL=$1;;
+	
+	-h | --help) usage_msg
+		     exit 0;;
+
+	*) printf "Invalid flag %s\n\n" $1
+	   usage_msg
 	   exit 1;;
     esac
     shift
 done
+
 
 if [ ! -f $HTML_PATH ]
 then
